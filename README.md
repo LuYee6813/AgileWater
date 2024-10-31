@@ -1,2 +1,6 @@
 # AgileWater
-The “Agile Drinking” app allows you to easily locate nearby water bottling sites and protect sustainable Taiwan by drinking water!
+解你的渴，為地球減塑減碳
+
+一鍵開啟飲水地圖，全台喝透透！
+
+「敏捷喝水」APP 可以讓您輕鬆找到附近裝水地點， 用喝水守護永續台灣！
