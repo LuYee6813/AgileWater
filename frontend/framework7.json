@@ -1,0 +1,16 @@
+{
+  "cwd": "/Users/hao/Playground/agile-water",
+  "type": ["web", "pwa"],
+  "name": "Agile Water",
+  "framework": "svelte",
+  "template": "single-view",
+  "bundler": "vite",
+  "cssPreProcessor": false,
+  "theming": {
+    "customColor": false,
+    "color": "#007aff",
+    "darkMode": false,
+    "iconFonts": true
+  },
+  "customBuild": false
+}
