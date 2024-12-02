@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Agile Water API
-  description: API for managing water stations and reviews.
+  description: API for managing water stations and their related functionalities.
   version: 1.0.0
 servers:
   - url: http://localhost:3000/api
@@ -11,7 +11,7 @@ paths:
   /water_stations:
     get:
       summary: Get all water stations
-      description: Retrieve all water stations with their basic information.
+      description: Retrieve all water stations with their coordinates and basic information.
       responses:
         '200':
           description: Successful response
@@ -40,16 +40,23 @@ paths:
                     access:
                       type: string
                       example: "公開"
+        '500':
+          description: Database query failed
 
     post:
       summary: Add a new water station
-      description: Add a new water station with coordinates and detailed information.
+      description: Add a new water station with detailed information.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - sn
+                - name
+                - lat
+                - lng
               properties:
                 sn:
                   type: integer
@@ -142,7 +149,7 @@ paths:
         '400':
           description: Missing required fields
         '500':
-          description: Internal server error
+          description: Database insert failed
 
   /water_stations/{sn}:
     get:
@@ -185,13 +192,17 @@ paths:
                   score:
                     type: number
                     example: 3.5
+        '400':
+          description: Invalid SN
         '404':
           description: Water station not found
+        '500':
+          description: Database query failed
 
   /water_stations/nearby:
     get:
       summary: Get nearby water stations
-      description: Retrieve water stations within a specified radius.
+      description: Retrieve water stations within a specified radius based on latitude and longitude.
       parameters:
         - name: lat
           in: query
@@ -240,105 +251,8 @@ paths:
                       type: number
                       example: 200
         '400':
-          description: Missing required parameters
-
-  /water_stations/{sn}/reviews:
-    get:
-      summary: Get reviews for a specific water station
-      description: Retrieve all reviews for a specific water station by its SN.
-      parameters:
-        - name: sn
-          in: path
-          required: true
-          schema:
-            type: integer
-            example: 1
-          description: The SN of the water station.
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    sn:
-                      type: integer
-                      example: 1056
-                    time:
-                      type: string
-                      format: date-time
-                      example: "2023-08-18T12:34:56Z"
-                    star:
-                      type: number
-                      example: 4.5
-                    content:
-                      type: string
-                      example: "Great drinking fountain!"
-                    name:
-                      type: string
-                      example: "John Doe"
-                    img:
-                      type: string
-                      example: "user_image.png"
-                    cmnt_img:
-                      type: string
-                      example: "review_image.png"
-
-    post:
-      summary: Add a review for a specific water station
-      description: Submit a new review for a specific water station by its SN.
-      parameters:
-        - name: sn
-          in: path
-          required: true
-          schema:
-            type: integer
-            example: 1
-          description: The SN of the water station.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                star:
-                  type: number
-                  example: 4.5
-                content:
-                  type: string
-                  example: "Great drinking fountain!"
-                name:
-                  type: string
-                  example: "John Doe"
-                img:
-                  type: string
-                  example: "user_image.png"
-                cmnt_img:
-                  type: string
-                  example: "review_image.png"
-      responses:
-        '201':
-          description: Review created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  station_sn:
-                    type: integer
-                    example: 1
-                  star:
-                    type: number
-                    example: 4.5
-                  content:
-                    type: string
-                    example: "Great drinking fountain!"
-        '400':
-          description: Missing required fields
+          description: Missing or invalid parameters
+        '404':
+          description: No water stations found
+        '500':
+          description: Database query failed

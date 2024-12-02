@@ -10,8 +10,8 @@ const { getReviewsByStationSn, addReview } = require('../controllers/reviewContr
 
 // 飲水機相關路由
 router.get('/water_stations', getWaterStations);
-router.get('/water_stations/:sn', getWaterStationBySn);
 router.get('/water_stations/nearby', getNearbyWaterStations);
+router.get('/water_stations/:sn', getWaterStationBySn);
 router.post('/water_stations', addWaterStation);
 
 // 評價相關路由
