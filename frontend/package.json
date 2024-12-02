@@ -27,7 +27,9 @@
     "skeleton-elements": "^4.0.1",
     "svelte": "^5.1.9",
     "svelte-maplibre": "^0.9.14",
-    "swiper": "^11.1.14"
+    "swagger-ui-express": "^5.0.1",
+    "swiper": "^11.1.14",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
