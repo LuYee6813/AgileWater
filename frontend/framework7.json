@@ -7,8 +7,6 @@
   "bundler": "vite",
   "cssPreProcessor": false,
   "theming": {
-    "customColor": false,
-    "color": "#007aff",
     "darkMode": false,
     "iconFonts": true
   },
