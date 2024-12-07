@@ -6,6 +6,7 @@ import { connectDB } from './config/db';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import waterDispensersRoutes from './routes/waterDispensers';
+import { ensureAdminAccount } from './utils/admingAccount';
 import { InternalServerError } from './utils/errorHandler';
 
 dotenv.config();
@@ -27,6 +28,8 @@ app.use((err: Error, _req: Request, res: Response) => {
   console.error(err);
   res.status(500).json({ ...InternalServerError, message: err.message });
 });
+
+await ensureAdminAccount();
 
 // Start the server
 const PORT = process.env.PORT || 8887;

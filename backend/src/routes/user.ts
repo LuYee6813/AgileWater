@@ -13,11 +13,27 @@ import {
 
 const router: Router = Router();
 
-// GET /users - Get all users (Admin Only)
-router.get('/', authMiddleware, adminMiddleware, async (req: AuthenticatedRequest, res) => {
+// GET /users - Get all users
+router.get('/', authMiddleware, async (req: AuthenticatedRequest, res) => {
   try {
     const users = await User.find().select('-password -_id -__v');
     res.status(200).json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(InternalServerError);
+  }
+});
+
+// GET /users/:username - Get user by username
+router.get('/:username', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).select('-password -_id -__v');
+    if (!user) {
+      res.status(404).json({ ...NotFoundError, message: 'User not found' });
+      return;
+    }
+    res.status(200).json(user);
   } catch (err) {
     console.error(err);
     res.status(500).json(InternalServerError);
@@ -105,6 +121,10 @@ router.delete('/:username', authMiddleware, async (req: AuthenticatedRequest, re
   if (!requester?.admin && requester?.username !== username) {
     res.status(403).json(ForbiddenError);
     return;
+  }
+
+  if (username === 'admin') {
+    res.status(403).json({ ...ForbiddenError, message: 'Cannot delete admin account' });
   }
 
   try {
