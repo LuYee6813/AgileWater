@@ -78,7 +78,6 @@ Get all user list.
 > Permission:
 >
 > - logged with valid session
-> - admin user
 
 #### Response Body
 
@@ -97,6 +96,30 @@ Get all user list.
     "admin": false
   },
 ]
+```
+
+##### 401 - Unauthorized
+
+Invalid session.
+
+### GET `/{username}`
+
+Get user by username.
+
+> Permission:
+>
+> - logged with valid session
+
+#### Response Body
+
+##### 200 - Success
+
+```json
+{
+  "username": "user",
+  "nickname": "User",
+  "admin": true
+}
 ```
 
 ##### 401 - Unauthorized
@@ -163,7 +186,7 @@ Update specific user information.
 {
   "password": "new password", // optional
   "nickname": "new nickname", // optional
-  "admin": true // optional
+  "admin": true // optional, only admin user can modify this
 }
 ```
 
@@ -175,7 +198,7 @@ Update specific user information.
 {
   "username": "user",
   "nickname": "User",
-  "admin": true // optional
+  "admin": true
 }
 ```
 
@@ -186,6 +209,10 @@ Invalid session.
 ##### 403 - Forbidden
 
 General user can't modify other user's information.
+
+##### 404 - Not Found
+
+User not found.
 
 ### DELETE `/{username}`
 
@@ -211,6 +238,10 @@ Invalid session.
 
 General user can't delete other user's information.
 
+##### 404 - Not Found
+
+User not found.
+
 ## `/water_dispensers`
 
 ### GET `/`
@@ -225,11 +256,11 @@ Permission:
 
 #### Params
 
-- `offset`
-- `limit` - optional
+- `offset` - optional (default: `0`)
+- `limit` - optional (default: `10`)
 - `lat`: search latitude - optional
 - `lng`: search longitude - optional
-- `radius`: search radius - optional
+- `radius`: search radius (meters) - optional
 - `iced`: is have iced? - optional
 - `warm`: is have warm? - optional
 - `hot`: is have hot? - optional
@@ -241,54 +272,214 @@ Permission:
 
 ```json
 [
-    {
-        "sn":4,
-        "lat":"25.08271",
-        "lng":"121.5829",
-        "access":"公開",
-        "name":"碧湖公園",
-        "addr":"",
-        "iced":"no",
-        "cold":"no",
-        "warm":"yes",
-        "hot":"no",
-        "opening_hours":"00:00 - 00:00",
-        "description":"閱覽室門口。24HR",
-        "rate":0.0,
-        "review":[]
+  {
+    "location": {
+      "coordinates": [
+        121.5829,
+        25.08271
+      ],
+      "type": "Point"
     },
-    {
-        "sn":5,
-        "lat":"24.79562",
-        "lng":"120.9967",
-        "access":"公開",
-        "name":"",
-        "addr":"",
-        "iced":"no",
-        "cold":"yes",
-        "warm":"yes",
-        "hot":"yes",
-        "opening_hours":"",
-        "description":"研發飲水機",
-        "rate":0.0,
-        "review":[]
+    "sn": 4,
+    "type": "直飲台",
+    "name": "碧湖公園",
+    "iced": false,
+    "cold": false,
+    "warm": true,
+    "hot": false,
+    "openingHours": "00:00 - 00:00",
+    "description": "閱覽室門口。24HR",
+    "rate": 3,
+    "photos": [
+      "1669827740_bpm5pa4j05l.png",
+      "1669827903_bd50c1rwhde.png"
+    ],
+    "path": "/app/fup",
+    "reviews": [
+      {
+        "sn": 1,
+        "username": "Rouf Hung",
+        "cmntImg": "",
+        "star": 3,
+        "content": "極力推薦",
+        "time": "2023-07-14T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 2,
+        "username": "Yu",
+        "cmntImg": "",
+        "star": 3,
+        "content": "水很好喝",
+        "time": "2023-07-14T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 3,
+        "username": "海堤",
+        "cmntImg": "1669396511_cc5xsjgj4xh.png",
+        "star": 3,
+        "content": "高低2個喝水站，高度大人小孩都適合",
+        "time": "2022-11-24T16:00:00.000Z",
+        "stolen": true
+      }
+    ]
+  },
+  {
+    "location": {
+      "coordinates": [
+        120.9967,
+        24.79562
+      ],
+      "type": "Point"
     },
-    {
-        "sn":6,
-        "lat":"24.99223",
-        "lng":"121.5407",
-        "access":"公開",
-        "name":"捷運景美站",
-        "addr":"",
-        "iced":"no",
-        "cold":"yes",
-        "warm":"yes",
-        "hot":"no",
-        "opening_hours":"06:00 - 23:00",
-        "description":"靠1號出口直飲台，有方便裝水的設計",
-        "rate":0.0,
-        "review":[]
+    "sn": 5,
+    "type": "飲水機",
+    "name": "No name",
+    "iced": false,
+    "cold": true,
+    "warm": true,
+    "hot": true,
+    "description": "研發飲水機",
+    "rate": 3,
+    "photos": [],
+    "path": "",
+    "reviews": [
+      {
+        "sn": 1,
+        "username": "蘆葦",
+        "cmntImg": "",
+        "star": 3,
+        "content": "水很好喝",
+        "time": "2024-09-01T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 2,
+        "username": "Jay",
+        "cmntImg": "",
+        "star": 3,
+        "content": "水很好喝",
+        "time": "2022-07-01T16:00:00.000Z",
+        "stolen": true
+      }
+    ]
+  },
+  {
+    "location": {
+      "coordinates": [
+        121.5407,
+        24.99223
+      ],
+      "type": "Point"
     },
+    "sn": 6,
+    "type": "直飲台",
+    "name": "捷運景美站",
+    "iced": false,
+    "cold": true,
+    "warm": true,
+    "hot": false,
+    "openingHours": "06:00 - 23:00",
+    "description": "靠1號出口直飲台，有方便裝水的設計",
+    "rate": 3.2,
+    "photos": [
+      "1649279785_53ivfc5sm5j.png"
+    ],
+    "path": "/app/fup",
+    "reviews": [
+      {
+        "sn": 1,
+        "username": "！！！",
+        "cmntImg": "",
+        "star": 3,
+        "content": "水很好喝",
+        "time": "2024-08-21T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 2,
+        "username": "潼恩1704611364",
+        "cmntImg": "",
+        "star": 3,
+        "content": "特別的奉茶站",
+        "time": "2024-08-13T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 3,
+        "username": "Crystal912 ",
+        "cmntImg": "",
+        "star": 3,
+        "content": "水很好喝",
+        "time": "2024-08-10T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 4,
+        "username": "娜",
+        "cmntImg": "",
+        "star": 3,
+        "content": "極力推薦",
+        "time": "2024-07-28T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 5,
+        "username": "x420420x",
+        "cmntImg": "",
+        "star": 4,
+        "content": "極力推薦",
+        "time": "2024-07-22T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 6,
+        "username": "Peggy",
+        "cmntImg": "",
+        "star": 3,
+        "content": "水很好喝",
+        "time": "2024-07-20T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 7,
+        "username": " 小乖",
+        "cmntImg": "",
+        "star": 3,
+        "content": "極力推薦",
+        "time": "2024-07-13T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 8,
+        "username": "Crystal912 ",
+        "cmntImg": "",
+        "star": 3,
+        "content": "水很好喝",
+        "time": "2024-06-19T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 9,
+        "username": "Jia Rui Wang",
+        "cmntImg": "1718570502_octphcunrb0.png",
+        "star": 3,
+        "content": "水很好喝",
+        "time": "2024-06-15T16:00:00.000Z",
+        "stolen": true
+      },
+      {
+        "sn": 10,
+        "username": "娜",
+        "cmntImg": "",
+        "star": 3,
+        "content": "極力推薦",
+        "time": "2024-06-15T16:00:00.000Z",
+        "stolen": true
+      }
+    ]
+  }
 ]
 ```
 
@@ -308,20 +499,45 @@ Permission:
 
 ```json
 {
-    "sn":4,
-    "lat":"25.08271",
-    "lng":"121.5829",
-    "access":"公開",
-    "name":"碧湖公園",
-    "addr":"",
-    "iced":"no",
-    "cold":"no",
-    "warm":"yes",
-    "hot":"no",
-    "opening_hours":"00:00 - 00:00",
-    "description":"閱覽室門口。24HR",
-    "rate":0.0,
-    "review":[]
+  "location": {
+    "coordinates": [
+      121.513152,
+      24.986225
+    ],
+    "type": "Point"
+  },
+  "sn": 22812,
+  "type": "飲水機",
+  "name": "崇南市民活動中心",
+  "addr": "新北市中和區景新街496巷26弄2號",
+  "iced": false,
+  "cold": false,
+  "warm": false,
+  "hot": false,
+  "openingHours": "00:00~00:00",
+  "description": "",
+  "rate": 4,
+  "photos": [],
+  "path": "",
+  "reviews": [
+    {
+      "sn": 1,
+      "username": "littlemay Tseng",
+      "cmntImg": "",
+      "star": 3,
+      "content": "水很好喝",
+      "time": "2024-05-24T16:00:00.000Z",
+      "stolen": true
+    },
+    {
+      "sn": 2,
+      "username": "test",
+      "star": 1,
+      "content": "阿巴阿巴qwq",
+      "time": "2024-12-07T21:48:26.744Z",
+      "stolen": false
+    }
+  ]
 }
 ```
 
@@ -356,15 +572,12 @@ Create a new review for water dispenser.
 
 ```json
 {
-  "sn": 1056,
-  "time": "2020.08.30",
-  "star": "1.0",
+  "sn": 2,
+  "username": "test",
+  "star": 1,
   "content": "噴水池，不是飲水機",
-  "name": "K",
-  "img": "1717044665_v5usawmfygl.png",
-  "usn": 32476,
-  "cmnt_img": "1718570502_octphcunrb0.png",
-  "stolen": true // Indicates that the comment was stolen.
+  "time": "2024-12-07T21:48:26.744Z",
+  "stolen": false
 }
 ```
 
@@ -399,15 +612,12 @@ Update review for water dispenser.
 
 ```json
 {
-  "sn": 1056,
-  "time": "2020.08.30",
-  "star": "1.0",
+  "sn": 2,
+  "username": "test",
+  "star": 1,
   "content": "噴水池，不是飲水機",
-  "name": "K",
-  "img": "1717044665_v5usawmfygl.png",
-  "usn": 32476,
-  "cmnt_img": "1718570502_octphcunrb0.png",
-  "stolen": true // Indicates that the comment was stolen.
+  "time": "2024-12-07T21:48:26.744Z",
+  "stolen": false
 }
 ```
 
@@ -485,12 +695,8 @@ Content-Type: application/json
 Location: http://server.example.com/users
 
 {
-  "errors": [
-    {
-      "error": "Invalid request data",
-      "message": "nickname: Expected string but got number"
-    }
-  ]
+  "error": "Invalid request data",
+  "message": "nickname: Expected string but got number"
 }
 ```
 
