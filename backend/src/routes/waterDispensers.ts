@@ -233,4 +233,64 @@ router.put(
   }
 );
 
+// DELETE /water_dispensers/:water_dispenser_sn/reviews/:review_sn - Delete a review
+router.delete(
+  '/:water_dispenser_sn/reviews/:review_sn',
+  authMiddleware,
+  async (req: AuthenticatedRequest, res) => {
+    const { water_dispenser_sn: waterDispenserSn, review_sn: reviewSn } = req.params;
+
+    if (!req.user) {
+      console.error('User not found in request');
+      res.status(500).json(InternalServerError);
+      return;
+    }
+
+    try {
+      // Find the water dispenser
+      const dispenser = await WaterDispenser.findOne({ sn: waterDispenserSn });
+      if (!dispenser) {
+        res.status(404).json({ ...NotFoundError, message: 'Water dispenser not found' });
+        return;
+      }
+
+      // Find the water review
+      const reviewIndex = dispenser.reviews.findIndex((r) => r.sn === parseInt(reviewSn));
+      if (reviewIndex === -1) {
+        res.status(404).json({ ...NotFoundError, message: 'Review not found' });
+        return;
+      }
+
+      const review = dispenser.reviews[reviewIndex];
+
+      // Make sure the user can only delete their own reviews unless they are an admin
+      if (!req.user.admin && review.username !== req.user.username) {
+        res
+          .status(403)
+          .json({ ...ForbiddenError, message: 'You can only delete your own reviews' });
+        return;
+      }
+
+      // Delete the review
+      dispenser.reviews.splice(reviewIndex, 1);
+
+      // Update the overall rate
+      if (dispenser.reviews.length > 0) {
+        dispenser.rate =
+          dispenser.reviews.reduce((sum, r) => sum + r.star, 0) / dispenser.reviews.length;
+      } else {
+        dispenser.rate = 0; // If there are no reviews, set to 0
+      }
+
+      await dispenser.save();
+
+      // Respond with No Content
+      res.sendStatus(204);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json(InternalServerError);
+    }
+  }
+);
+
 export default router;
