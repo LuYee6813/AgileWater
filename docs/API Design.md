@@ -262,6 +262,7 @@ Permission:
 - `lng`: search longitude - optional
 - `radius`: search radius (meters) - optional
 - `iced`: is have iced? - optional
+- `cold`: is have cold? - optional
 - `warm`: is have warm? - optional
 - `hot`: is have hot? - optional
 - `name` - optional
@@ -287,7 +288,8 @@ Permission:
     "cold": false,
     "warm": true,
     "hot": false,
-    "openingHours": "00:00 - 00:00",
+    "openingHours": "00:00 - 00:00", // optional
+    "addr": "我是地址", // optional
     "description": "閱覽室門口。24HR",
     "rate": 3,
     "photos": [
@@ -299,7 +301,7 @@ Permission:
       {
         "sn": 1,
         "username": "Rouf Hung",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "極力推薦",
         "time": "2023-07-14T16:00:00.000Z",
@@ -308,7 +310,7 @@ Permission:
       {
         "sn": 2,
         "username": "Yu",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
         "time": "2023-07-14T16:00:00.000Z",
@@ -317,7 +319,7 @@ Permission:
       {
         "sn": 3,
         "username": "海堤",
-        "cmntImg": "1669396511_cc5xsjgj4xh.png",
+        "cmntImg": "1669396511_cc5xsjgj4xh.png", // optional
         "star": 3,
         "content": "高低2個喝水站，高度大人小孩都適合",
         "time": "2022-11-24T16:00:00.000Z",
@@ -348,7 +350,7 @@ Permission:
       {
         "sn": 1,
         "username": "蘆葦",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
         "time": "2024-09-01T16:00:00.000Z",
@@ -357,7 +359,7 @@ Permission:
       {
         "sn": 2,
         "username": "Jay",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
         "time": "2022-07-01T16:00:00.000Z",
@@ -380,7 +382,7 @@ Permission:
     "cold": true,
     "warm": true,
     "hot": false,
-    "openingHours": "06:00 - 23:00",
+    "openingHours": "06:00 - 23:00", // optional
     "description": "靠1號出口直飲台，有方便裝水的設計",
     "rate": 3.2,
     "photos": [
@@ -391,7 +393,7 @@ Permission:
       {
         "sn": 1,
         "username": "！！！",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
         "time": "2024-08-21T16:00:00.000Z",
@@ -400,7 +402,7 @@ Permission:
       {
         "sn": 2,
         "username": "潼恩1704611364",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "特別的奉茶站",
         "time": "2024-08-13T16:00:00.000Z",
@@ -409,7 +411,7 @@ Permission:
       {
         "sn": 3,
         "username": "Crystal912 ",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
         "time": "2024-08-10T16:00:00.000Z",
@@ -418,7 +420,7 @@ Permission:
       {
         "sn": 4,
         "username": "娜",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "極力推薦",
         "time": "2024-07-28T16:00:00.000Z",
@@ -427,7 +429,7 @@ Permission:
       {
         "sn": 5,
         "username": "x420420x",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 4,
         "content": "極力推薦",
         "time": "2024-07-22T16:00:00.000Z",
@@ -436,7 +438,7 @@ Permission:
       {
         "sn": 6,
         "username": "Peggy",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
         "time": "2024-07-20T16:00:00.000Z",
@@ -445,7 +447,7 @@ Permission:
       {
         "sn": 7,
         "username": " 小乖",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "極力推薦",
         "time": "2024-07-13T16:00:00.000Z",
@@ -454,7 +456,7 @@ Permission:
       {
         "sn": 8,
         "username": "Crystal912 ",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
         "time": "2024-06-19T16:00:00.000Z",
@@ -463,7 +465,7 @@ Permission:
       {
         "sn": 9,
         "username": "Jia Rui Wang",
-        "cmntImg": "1718570502_octphcunrb0.png",
+        "cmntImg": "1718570502_octphcunrb0.png", // optional
         "star": 3,
         "content": "水很好喝",
         "time": "2024-06-15T16:00:00.000Z",
@@ -472,7 +474,7 @@ Permission:
       {
         "sn": 10,
         "username": "娜",
-        "cmntImg": "",
+        "cmntImg": "", // optional
         "star": 3,
         "content": "極力推薦",
         "time": "2024-06-15T16:00:00.000Z",
@@ -509,12 +511,12 @@ Permission:
   "sn": 22812,
   "type": "飲水機",
   "name": "崇南市民活動中心",
-  "addr": "新北市中和區景新街496巷26弄2號",
+  "addr": "新北市中和區景新街496巷26弄2號", // optional
   "iced": false,
   "cold": false,
   "warm": false,
   "hot": false,
-  "openingHours": "00:00~00:00",
+  "openingHours": "00:00~00:00", // optional
   "description": "",
   "rate": 4,
   "photos": [],
@@ -523,7 +525,7 @@ Permission:
     {
       "sn": 1,
       "username": "littlemay Tseng",
-      "cmntImg": "",
+      "cmntImg": "", // optional
       "star": 3,
       "content": "水很好喝",
       "time": "2024-05-24T16:00:00.000Z",
