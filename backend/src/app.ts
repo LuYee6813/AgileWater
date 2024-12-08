@@ -1,3 +1,4 @@
+import cors from 'cors';
 import dotenv from 'dotenv';
 import type { Request, Response } from 'express';
 import express from 'express';
@@ -12,6 +13,14 @@ import { InternalServerError } from './utils/errorHandler';
 dotenv.config();
 
 const app = express();
+
+// Allow all origins for now
+const corsOptions = {
+  origin: '*'
+};
+app.use(cors(corsOptions));
+
+// Parse application/json
 app.use(express.json());
 
 // Database connection
