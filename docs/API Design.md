@@ -287,10 +287,10 @@ Permission:
 #### Params
 
 - `offset` - optional (default: `0`)
-- `limit` - optional (default: `10`)
+- `limit` - optional (default: `10`, `-1` = unlimited)
 - `lat`: search latitude - optional
 - `lng`: search longitude - optional
-- `radius`: search radius (meters) - optional
+- `radius`: search radius (meters, `-1` = unlimited) - optional
 - `iced`: is have iced? - optional
 - `cold`: is have cold? - optional
 - `warm`: is have warm? - optional
