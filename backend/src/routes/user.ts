@@ -16,8 +16,26 @@ const router: Router = Router();
 // GET /users - Get all users
 router.get('/', authMiddleware, async (req: AuthenticatedRequest, res) => {
   try {
+    // Calculate total items
+    const totalItems = await User.countDocuments();
     const users = await User.find().select('-password -_id -__v');
+    res.set('X-Total-Count', totalItems.toString());
     res.status(200).json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(InternalServerError);
+  }
+});
+
+// GET /users/current - Get current user
+router.get('/current', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  try {
+    const user = await User.findOne({ username: req.user?.username }).select('-password -_id -__v');
+    if (!user) {
+      res.status(404).json({ ...NotFoundError, message: 'User not found' });
+      return;
+    }
+    res.status(200).json(user);
   } catch (err) {
     console.error(err);
     res.status(500).json(InternalServerError);

@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import type { AuthenticatedRequest } from '../middlewares/auth';
 import { authMiddleware } from '../middlewares/auth';
-import type { IReview } from '../models/WaterDispenser';
+import type { IReview, IWaterDispenser } from '../models/WaterDispenser';
 import { WaterDispenser } from '../models/WaterDispenser';
 import {
   BadRequestError,
@@ -13,17 +13,29 @@ import {
 
 const router: Router = Router();
 
+function dispenserToResponse(dispenser: IWaterDispenser) {
+  return {
+    ...dispenser,
+    location: {
+      lng: dispenser.location.coordinates[0],
+      lat: dispenser.location.coordinates[1]
+    }
+  };
+}
+
 // GET /water_dispensers - List dispensers with optional filters
 router.get('/', authMiddleware, async (req, res) => {
-  const { offset = 0, limit = 10, lat, lng, radius, iced, cold, warm, hot, name } = req.query;
+  const { offset = 0, limit = 10, lat, lng, radius, iced, cold, warm, hot, name, sort } = req.query;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filters: any = {};
-  if (iced) filters.iced = iced;
-  if (cold) filters.cold = cold;
-  if (warm) filters.warm = warm;
-  if (hot) filters.hot = hot;
+  if (iced) filters.iced = iced === 'true';
+  if (cold) filters.cold = cold === 'true';
+  if (warm) filters.warm = warm === 'true';
+  if (hot) filters.hot = hot === 'true';
   if (name) filters.name = new RegExp(name as string, 'i');
+
+  let geoQuery = null;
 
   // Filter by location and radius
   if (lat || lng || radius) {
@@ -39,23 +51,70 @@ router.get('/', authMiddleware, async (req, res) => {
       return;
     }
 
-    filters.location = {
-      $near: {
-        $geometry: {
+    geoQuery = {
+      $geoNear: {
+        near: {
           type: 'Point',
           coordinates: [longitude, latitude] // GeoJSON format：[lng, lat]
         },
-        $maxDistance: distance // radius
-      }
+        distanceField: 'distance', // Fields containing calculation distance
+        spherical: true // Use spherical distance formula
+      } as unknown as Record<string, unknown>
     };
+
+    if (distance >= 0) {
+      geoQuery.$geoNear.maxDistance = distance; // radius
+    }
   }
 
   try {
-    const dispensers = await WaterDispenser.find(filters)
-      .skip(Number(offset))
-      .limit(Number(limit))
-      .select('-_id -__v -reviews._id');
-    res.status(200).json(dispensers);
+    // Calculate total items
+    const totalItems = await WaterDispenser.countDocuments(filters);
+
+    // MongoDB Pipeline
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pipeline: any[] = [];
+
+    // if enabled geo filter, add $geoNear
+    if (geoQuery) {
+      pipeline.push(geoQuery);
+
+      // sort
+      if (sort === 'distance') {
+        pipeline.push({ $sort: { distance: 1 } }); // sort by distance
+      } else {
+        pipeline.push({ $sort: { distance: 1 } }); // sort by distance
+      }
+    }
+
+    // add filters
+    if (Object.keys(filters).length > 0) {
+      pipeline.push({ $match: filters });
+    }
+
+    // add skip and limit if limit >= 0
+    if (Number(limit) >= 0) {
+      pipeline.push({ $skip: Number(offset) });
+      pipeline.push({ $limit: Number(limit) });
+    }
+
+    // exclude _id, __v, reviews._id
+    pipeline.push({
+      $project: {
+        _id: 0,
+        __v: 0,
+        'reviews._id': 0
+      }
+    });
+
+    const dispensers = await WaterDispenser.aggregate(pipeline);
+
+    // Map `coordinates` to `{ location: { lng, lat } }`
+    const transformed = dispensers.map(dispenserToResponse);
+
+    // Set X-Total-Count header
+    res.set('X-Total-Count', totalItems.toString());
+    res.status(200).json(transformed);
   } catch (err) {
     console.error(err);
     res.status(500).json(InternalServerError);
@@ -65,15 +124,64 @@ router.get('/', authMiddleware, async (req, res) => {
 // GET /water_dispensers/:sn - Get dispenser details
 router.get('/:sn', authMiddleware, async (req, res) => {
   const { sn } = req.params;
+  const { lat, lng } = req.query;
 
   try {
-    const dispenser = await WaterDispenser.findOne({ sn }).select('-_id -__v -reviews._id');
-    if (!dispenser) {
+    // MongoDB Pipeline
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pipeline: any[] = [
+      // Filter by sn
+      { $match: { sn: Number(sn) } }
+    ];
+
+    // Add $geoNear to calculate distance if lat and lng are provided
+    if (lat || lng) {
+      const latitude = parseFloat(lat as string);
+      const longitude = parseFloat(lng as string);
+
+      if (isNaN(latitude) || isNaN(longitude)) {
+        res.status(400).json({
+          ...BadRequestError,
+          message: 'lat and lng must be valid numbers'
+        });
+        return;
+      }
+
+      pipeline.unshift({
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [longitude, latitude] // GeoJSON format: [lng, lat]
+          },
+          distanceField: 'distance', // Field containing calculation distance
+          spherical: true // Use spherical distance formula
+        }
+      });
+    }
+
+    // Add $limit to get only one result
+    pipeline.push({ $limit: Number(1) });
+
+    // Exclude _id, __v, reviews._id
+    pipeline.push({
+      $project: {
+        _id: 0,
+        __v: 0,
+        'reviews._id': 0
+      }
+    });
+
+    // Execute the pipeline
+    const result = await WaterDispenser.aggregate(pipeline);
+
+    if (result.length === 0) {
       res.status(404).json({ ...NotFoundError, message: 'Water dispenser not found' });
       return;
     }
 
-    res.status(200).json(dispenser);
+    // Respond with the first result
+    const dispenser = result[0];
+    res.status(200).json(dispenserToResponse(dispenser));
   } catch (err) {
     console.error(err);
     res.status(500).json(InternalServerError);
