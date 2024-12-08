@@ -15,11 +15,12 @@ const router: Router = Router();
 
 // GET /water_dispensers - List dispensers with optional filters
 router.get('/', authMiddleware, async (req, res) => {
-  const { offset = 0, limit = 10, lat, lng, radius, iced, warm, hot, name } = req.query;
+  const { offset = 0, limit = 10, lat, lng, radius, iced, cold, warm, hot, name } = req.query;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filters: any = {};
   if (iced) filters.iced = iced;
+  if (cold) filters.cold = cold;
   if (warm) filters.warm = warm;
   if (hot) filters.hot = hot;
   if (name) filters.name = new RegExp(name as string, 'i');
