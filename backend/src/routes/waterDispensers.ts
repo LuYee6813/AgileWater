@@ -68,9 +68,6 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 
   try {
-    // Calculate total items
-    const totalItems = await WaterDispenser.countDocuments(filters);
-
     // MongoDB Pipeline
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pipeline: any[] = [];
@@ -91,6 +88,11 @@ router.get('/', authMiddleware, async (req, res) => {
     if (Object.keys(filters).length > 0) {
       pipeline.push({ $match: filters });
     }
+
+    // Calculate total count
+    const totalCountPipeline = [...pipeline, { $count: 'totalCount' }];
+    const totalCountResult = await WaterDispenser.aggregate(totalCountPipeline);
+    const totalItems = totalCountResult[0]?.totalCount || 0;
 
     // add skip and limit if limit >= 0
     if (Number(limit) >= 0) {
