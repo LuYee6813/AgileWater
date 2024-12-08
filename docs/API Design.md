@@ -102,6 +102,36 @@ Get all user list.
 
 Invalid session.
 
+#### Response Header
+
+```
+X-Total-Count: 2 // total users
+```
+
+### GET `/current`
+
+Get current user.
+
+> Permission:
+>
+> - logged with valid session
+
+#### Response Body
+
+##### 200 - Success
+
+```json
+{
+  "username": "user",
+  "nickname": "User",
+  "admin": true
+}
+```
+
+##### 401 - Unauthorized
+
+Invalid session.
+
 ### GET `/{username}`
 
 Get user by username.
@@ -266,6 +296,7 @@ Permission:
 - `warm`: is have warm? - optional
 - `hot`: is have hot? - optional
 - `name` - optional
+- `sort` - optional (default: `distance`)
 
 #### Response Body
 
@@ -274,215 +305,158 @@ Permission:
 ```json
 [
   {
+    "sn": 22812,
+    "type": "飲水機",
     "location": {
-      "coordinates": [
-        121.5829,
-        25.08271
-      ],
-      "type": "Point"
+      "lng": 121.513152,
+      "lat": 24.986225
     },
-    "sn": 4,
-    "type": "直飲台",
-    "name": "碧湖公園",
+    "name": "崇南市民活動中心",
+    "addr": "新北市中和區景新街496巷26弄2號", // optional
     "iced": false,
     "cold": false,
-    "warm": true,
+    "warm": false,
     "hot": false,
-    "openingHours": "00:00 - 00:00", // optional
-    "addr": "我是地址", // optional
-    "description": "閱覽室門口。24HR",
-    "rate": 3,
-    "photos": [
-      "1669827740_bpm5pa4j05l.png",
-      "1669827903_bd50c1rwhde.png"
-    ],
-    "path": "/app/fup",
-    "reviews": [
-      {
-        "sn": 1,
-        "username": "Rouf Hung",
-        "cmntImg": "", // optional
-        "star": 3,
-        "content": "極力推薦",
-        "time": "2023-07-14T16:00:00.000Z",
-        "stolen": true
-      },
-      {
-        "sn": 2,
-        "username": "Yu",
-        "cmntImg": "", // optional
-        "star": 3,
-        "content": "水很好喝",
-        "time": "2023-07-14T16:00:00.000Z",
-        "stolen": true
-      },
-      {
-        "sn": 3,
-        "username": "海堤",
-        "cmntImg": "1669396511_cc5xsjgj4xh.png", // optional
-        "star": 3,
-        "content": "高低2個喝水站，高度大人小孩都適合",
-        "time": "2022-11-24T16:00:00.000Z",
-        "stolen": true
-      }
-    ]
-  },
-  {
-    "location": {
-      "coordinates": [
-        120.9967,
-        24.79562
-      ],
-      "type": "Point"
-    },
-    "sn": 5,
-    "type": "飲水機",
-    "name": "No name",
-    "iced": false,
-    "cold": true,
-    "warm": true,
-    "hot": true,
-    "description": "研發飲水機",
+    "openingHours": "00:00~00:00", // optional
+    "description": "",
     "rate": 3,
     "photos": [],
     "path": "",
     "reviews": [
       {
         "sn": 1,
-        "username": "蘆葦",
+        "username": "littlemay Tseng",
         "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
-        "time": "2024-09-01T16:00:00.000Z",
+        "time": "2024-05-24T16:00:00.000Z",
         "stolen": true
       },
       {
-        "sn": 2,
-        "username": "Jay",
-        "cmntImg": "", // optional
-        "star": 3,
-        "content": "水很好喝",
-        "time": "2022-07-01T16:00:00.000Z",
-        "stolen": true
+        "sn": 3,
+        "username": "test",
+        "star": 1,
+        "content": "阿巴阿巴qwq",
+        "time": "2024-12-07T23:17:51.219Z",
+        "stolen": false
+      },
+      {
+        "sn": 4,
+        "username": "test",
+        "star": 5,
+        "content": "阿巴阿巴",
+        "time": "2024-12-07T23:18:20.338Z",
+        "stolen": false
       }
-    ]
+    ],
+    "distance": 253.17609315769488 // optional, only show when lat, lng provided
   },
   {
+    "sn": 8858,
+    "type": "飲水機",
     "location": {
-      "coordinates": [
-        121.5407,
-        24.99223
-      ],
-      "type": "Point"
+      "lng": 121.5131,
+      "lat": 24.98884
     },
-    "sn": 6,
-    "type": "直飲台",
-    "name": "捷運景美站",
+    "name": "遠傳中和景新門市",
     "iced": false,
     "cold": true,
     "warm": true,
     "hot": false,
-    "openingHours": "06:00 - 23:00", // optional
-    "description": "靠1號出口直飲台，有方便裝水的設計",
-    "rate": 3.2,
+    "openingHours": "12:00 - 21:30", // optional
+    "description": "",
+    "rate": 3,
     "photos": [
-      "1649279785_53ivfc5sm5j.png"
+      "1650752839_wff5jr4ru3u.png"
     ],
     "path": "/app/fup",
     "reviews": [
       {
         "sn": 1,
-        "username": "！！！",
+        "username": "Bally Hsu",
         "cmntImg": "", // optional
         "star": 3,
         "content": "水很好喝",
-        "time": "2024-08-21T16:00:00.000Z",
+        "time": "2024-07-19T16:00:00.000Z",
         "stolen": true
       },
       {
         "sn": 2,
-        "username": "潼恩1704611364",
+        "username": "User-1676056597",
         "cmntImg": "", // optional
         "star": 3,
-        "content": "特別的奉茶站",
-        "time": "2024-08-13T16:00:00.000Z",
+        "content": "極力推薦",
+        "time": "2024-07-05T16:00:00.000Z",
         "stolen": true
       },
       {
         "sn": 3,
-        "username": "Crystal912 ",
+        "username": "朱朱",
         "cmntImg": "", // optional
         "star": 3,
-        "content": "水很好喝",
-        "time": "2024-08-10T16:00:00.000Z",
+        "content": "特別的奉茶站",
+        "time": "2024-03-22T16:00:00.000Z",
         "stolen": true
       },
       {
         "sn": 4,
-        "username": "娜",
+        "username": "朱朱",
         "cmntImg": "", // optional
         "star": 3,
-        "content": "極力推薦",
-        "time": "2024-07-28T16:00:00.000Z",
+        "content": "特別的奉茶站",
+        "time": "2023-01-22T16:00:00.000Z",
         "stolen": true
       },
       {
         "sn": 5,
-        "username": "x420420x",
-        "cmntImg": "", // optional
-        "star": 4,
-        "content": "極力推薦",
-        "time": "2024-07-22T16:00:00.000Z",
-        "stolen": true
-      },
-      {
-        "sn": 6,
-        "username": "Peggy",
+        "username": "朱朱",
         "cmntImg": "", // optional
         "star": 3,
-        "content": "水很好喝",
-        "time": "2024-07-20T16:00:00.000Z",
-        "stolen": true
-      },
-      {
-        "sn": 7,
-        "username": " 小乖",
-        "cmntImg": "", // optional
-        "star": 3,
-        "content": "極力推薦",
-        "time": "2024-07-13T16:00:00.000Z",
-        "stolen": true
-      },
-      {
-        "sn": 8,
-        "username": "Crystal912 ",
-        "cmntImg": "", // optional
-        "star": 3,
-        "content": "水很好喝",
-        "time": "2024-06-19T16:00:00.000Z",
-        "stolen": true
-      },
-      {
-        "sn": 9,
-        "username": "Jia Rui Wang",
-        "cmntImg": "1718570502_octphcunrb0.png", // optional
-        "star": 3,
-        "content": "水很好喝",
-        "time": "2024-06-15T16:00:00.000Z",
-        "stolen": true
-      },
-      {
-        "sn": 10,
-        "username": "娜",
-        "cmntImg": "", // optional
-        "star": 3,
-        "content": "極力推薦",
-        "time": "2024-06-15T16:00:00.000Z",
+        "content": "特別的奉茶站",
+        "time": "2022-11-18T16:00:00.000Z",
         "stolen": true
       }
-    ]
+    ],
+    "distance": 277.4015784103799 // optional, only show when lat, lng provided
+  },
+  {
+    "sn": 20964,
+    "type": "飲水機",
+    "location": {
+      "lng": 121.518178,
+      "lat": 24.984615
+    },
+    "name": "新和國民小學",
+    "addr": "新北市新店區永安里3鄰安和路三段100號", // optional
+    "iced": true,
+    "cold": false,
+    "warm": true,
+    "hot": false,
+    "openingHours": "17:50~20:30", // optional
+    "description": "室外1樓 。公休日：周末、例假日。",
+    "rate": 3,
+    "photos": [],
+    "path": "",
+    "reviews": [
+      {
+        "sn": 1,
+        "username": "Bally Hsu",
+        "cmntImg": "", // optional
+        "star": 3,
+        "content": "極力推薦",
+        "time": "2024-07-19T16:00:00.000Z",
+        "stolen": true
+      }
+    ],
+    "distance": 420.96827743993316 // optional, only show when lat, lng provided
   }
 ]
+```
+
+#### Response Header
+
+```
+X-Total-Count: 14384 // total items found with the filter
 ```
 
 ### GET `/{water_dispenser_sn}`
@@ -495,21 +469,23 @@ Permission:
 >
 > - logged with valid session
 
+#### Params
+
+- `lat`: current latitude to caculate distance - optional
+- `lng`: current longitude to caculate distance - optional
+
 #### Response Body
 
 ##### 200 - Success
 
 ```json
 {
-  "location": {
-    "coordinates": [
-      121.513152,
-      24.986225
-    ],
-    "type": "Point"
-  },
   "sn": 22812,
   "type": "飲水機",
+  "location": {
+    "lng": 121.513152,
+    "lat": 24.986225
+  },
   "name": "崇南市民活動中心",
   "addr": "新北市中和區景新街496巷26弄2號", // optional
   "iced": false,
@@ -518,7 +494,7 @@ Permission:
   "hot": false,
   "openingHours": "00:00~00:00", // optional
   "description": "",
-  "rate": 4,
+  "rate": 3,
   "photos": [],
   "path": "",
   "reviews": [
@@ -532,14 +508,23 @@ Permission:
       "stolen": true
     },
     {
-      "sn": 2,
+      "sn": 3,
       "username": "test",
       "star": 1,
       "content": "阿巴阿巴qwq",
-      "time": "2024-12-07T21:48:26.744Z",
+      "time": "2024-12-07T23:17:51.219Z",
+      "stolen": false
+    },
+    {
+      "sn": 4,
+      "username": "test",
+      "star": 5,
+      "content": "阿巴阿巴",
+      "time": "2024-12-07T23:18:20.338Z",
       "stolen": false
     }
-  ]
+  ],
+  "distance": 253.17609315769488 // optional, only show when lat, lng provided
 }
 ```
 
