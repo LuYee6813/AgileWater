@@ -1,18 +1,22 @@
+import bcrypt from 'bcrypt';
 import type { Application } from 'express';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { startSerever } from '../../app';
 import * as db from '../../config/db';
+import { User } from '../../models/User';
 
 let mongoServer: MongoMemoryServer;
 
 let app: Application;
 
 describe('auth', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
+    process.env.JWT_SECRET = 'test';
+
     vi.spyOn(db, 'connectDB').mockImplementation(async () => {
       mongoServer = await MongoMemoryServer.create();
       const uri = mongoServer.getUri();
@@ -22,9 +26,17 @@ describe('auth', () => {
     });
 
     app = await startSerever();
+
+    const hashedPassword1 = await bcrypt.hash('password123', 10);
+    await User.create({
+      username: 'testuser1',
+      password: hashedPassword1,
+      nickname: 'Test User1',
+      admin: false
+    });
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
     await mongoServer.stop();
@@ -39,7 +51,7 @@ describe('auth', () => {
     });
   });
 
-  describe('POST /auth/login with admin account', () => {
+  describe('POST /auth/login with valid account', () => {
     it('should return a token', async () => {
       const res = await request(app).post('/auth/login').send({
         username: 'admin',
@@ -49,4 +61,69 @@ describe('auth', () => {
       expect(res.body).toHaveProperty('token');
     });
   });
+
+  describe('POST /auth/login with invalid username', () => {
+    it('should return 401 error', async () => {
+      const res = await request(app).post('/auth/login').send({
+        username: 'invalid',
+        password: 'admin'
+      });
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('POST /auth/login with invalid password', () => {
+    it('should return 401 error', async () => {
+      const res = await request(app).post('/auth/login').send({
+        username: 'admin',
+        password: 'invalid'
+      });
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('POST /register with valid payload', () => {
+    it('should return 201 and the correct response body', async () => {
+      const res = await request(app).post('/auth/register').send({
+        username: 'testuser',
+        password: 'password789',
+        nickname: 'Test User'
+      });
+      expect(res.statusCode).toBe(201);
+      expect(res.body).toEqual({
+        username: 'testuser',
+        nickname: 'Test User',
+        admin: false
+      });
+    });
+  });
+
+  describe('POST /register with existing username', () => {
+    it('should return 409 error', async () => {
+      const res = await request(app).post('/auth/register').send({
+        username: 'testuser1',
+        password: 'password789',
+        nickname: 'Test User'
+      });
+      expect(res.statusCode).toBe(409);
+    });
+  });
+
+  /*
+  describe('POST /register with no payload', () => {
+    it('should return 400 error', async () => {
+      const res = await request(app).post('/auth/register');
+      expect(res.statusCode).toBe(400);
+    });
+  });
+  describe('POST /register with missing password', () => {
+    it('should return 409 error', async () => {
+      const res = await request(app).post('/auth/register').send({
+        username: 'testuser',
+        nickname: 'Test User',
+      });
+      expect(res.statusCode).toBe(401);
+    });
+  });
+  */
 });
