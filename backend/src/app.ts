@@ -42,7 +42,9 @@ export async function startSerever(): Promise<Application> {
 
   // Start the server
   const PORT = process.env.PORT || 8887;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  }
 
   return app;
 }
