@@ -45,3 +45,9 @@ export interface WaterDispenserResponse {
   reviews: Review[];
   distance?: number; // optional, only present when lat/lng are provided
 }
+
+export interface UserData {
+  username: string;
+  nickname: string;
+  admin: boolean;
+}

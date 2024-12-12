@@ -1,15 +1,25 @@
 import MapsPage from "../pages/maps.svelte";
-import AuthPage from "../pages/auth.svelte";
+import LoginPage from "../pages/login.svelte";
 import NotFoundPage from "../pages/404.svelte";
+import RegisterPage from "../pages/register.svelte";
+import ProfilePage from "../pages/profile.svelte";
 
-var routes = [
+const routes = [
   {
     path: "/",
     component: MapsPage,
   },
   {
-    path: "/auth",
-    component: AuthPage,
+    path: "/profile",
+    component: ProfilePage,
+  },
+  {
+    path: "/login",
+    component: LoginPage,
+  },
+  {
+    path: "/register",
+    component: RegisterPage,
   },
   {
     path: "(.*)",

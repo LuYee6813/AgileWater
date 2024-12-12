@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Sheet, Card, Button, Icon } from "framework7-svelte";
   import urlJoin from "url-join";
+  import { Sheet, Card, Button, Icon } from "framework7-svelte";
   import type { WaterDispenserResponse } from "../api/common";
 
   export let sheetOpened = false;
@@ -62,7 +62,7 @@
         <div class="flex flex-row justify-between w-full">
           <span
             class="w-[70%] font-sans text-xl font-bold"
-            style="font-size: 24px; white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis; display:  max-width: 100%;"
+            style="font-size: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display:  max-width: 100%;"
             >{focusPin?.name ?? "undefined"}</span
           >
           <div class="flex flex-row items-center justify-end">

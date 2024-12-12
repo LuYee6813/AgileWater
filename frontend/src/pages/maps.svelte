@@ -1,14 +1,17 @@
 <script lang="ts">
-  import { Button, Icon, Page } from "framework7-svelte";
+  import { Button, f7, Icon, Page } from "framework7-svelte";
   import { onDestroy, onMount, tick } from "svelte";
   import { MapLibre, Marker } from "svelte-maplibre";
   import type { LngLatLike } from "svelte-maplibre/dist/types";
   import PinDetailsSheet from "../components/PinDetailsSheet.svelte";
   import { getWaterDispensers } from "../api/waterDispenser/waterDispenser";
+  import { getCurrentUsers } from "../api/auth/auth";
+  import ProfileSheet from "./profile.svelte";
 
   import type {
     WaterDispenserResponse,
     WaterDispenserParams,
+    UserData,
   } from "../api/common";
 
   let markers: WaterDispenserResponse[] = [];
@@ -21,8 +24,11 @@
   let sheetOpened = false;
   let sheetClosing = false;
 
+  let ProfileSheetOpened = false;
+
   let focusPin: WaterDispenserResponse | null = null;
   let userPin: LngLatLike = null;
+  let userData: UserData | null = null;
 
   let sheetView: HTMLElement | null = null;
 
@@ -175,6 +181,26 @@
     }
   }
 
+  const handleUserClick = async () => {
+    try {
+      const user = await getCurrentUsers(); // 獲取當前用戶
+      if (user) {
+        userData = {
+          username: user.username,
+          nickname: user.nickname,
+          admin: user.admin,
+        };
+        console.log("userData:", userData);
+        ProfileSheetOpened = true; // 打開 ProfileSheet
+      } else {
+        f7.views.main.router.navigate("/login"); // 跳轉登入頁
+      }
+    } catch (error) {
+      console.error("Error handling user click:", error);
+      f7.views.main.router.navigate("/login");
+    }
+  };
+
   onMount(async () => {
     await tick();
     if (map && !sheetOpened) {
@@ -274,6 +300,9 @@
     onSheetClose={handleSheetClose}
     onSheetClosed={handleSheetClosed}
   />
+
+  <ProfileSheet bind:userData bind:ProfileSheetOpened />
+
   <div
     class="flex flex-row justify-center w-full pb-10 fixed bottom-0 z-5 pointer-events-none"
   >
@@ -294,6 +323,7 @@
       <Button
         outline
         class="w-[62px] h-[62px] border-[1px] border-black bg-white rounded-[10px] pointer-events-auto drop-shadow-[0_4px_6px_rgba(0,0,0,0.25)]"
+        on:click={handleUserClick}
       >
         <Icon material="account_circle" size="28px" class="color-black"></Icon>
       </Button>
