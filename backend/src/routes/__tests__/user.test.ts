@@ -5,6 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { startSerever } from '../../app';
 import * as db from '../../config/db';
 import { User } from '../../models/User';
@@ -276,6 +277,61 @@ describe('users', () => {
           nickname: 'abcd',
           admin: false
         });
+      expect(res.statusCode).toBe(404);
+    });
+  });
+
+  describe('DELETE /users/{username} with user authorized and admin', () => {
+    it('should return 204', async () => {
+      const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .delete('/users/testuser1')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(204);
+    });
+  });
+
+  describe('DELETE /users/{username} with user authorized but not admin deleting his own account', () => {
+    it('should return 204', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .delete('/users/testuser1')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(204);
+    });
+  });
+
+  describe('DELETE /users/{username} with user authorized but not admin deleting other account', () => {
+    it('should return 403 error', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .delete('/users/testuser2')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(403);
+    });
+  });
+
+  describe('DELETE /users/{username} with user unauthorized', () => {
+    it('should return 401 error', async () => {
+      const res = await request(app).delete('/users/testuser1');
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('DELETE /users/{username} with user authorized and admin but user not exist', () => {
+    it('should return 404 error', async () => {
+      const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .delete('/users/testuser3')
+        .set('Authorization', 'Bearer ' + token);
       expect(res.statusCode).toBe(404);
     });
   });
