@@ -106,7 +106,7 @@ describe('users', () => {
   });
 
   describe('GET /users/{username} with user authorized and searching valid user', () => {
-    it('should return 201 and the information of the user is asked', async () => {
+    it('should return 200 and the information of the user is asked', async () => {
       const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
       });
@@ -119,7 +119,7 @@ describe('users', () => {
   });
 
   describe('GET /users/{username} with user authorized and searching invalid user', () => {
-    it('should return 201 and the information of the user is asked', async () => {
+    it('should return 404 and the information of the user is asked', async () => {
       const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
       });
