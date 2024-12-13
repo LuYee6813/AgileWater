@@ -270,15 +270,14 @@
     {#each markers as p}
       <Marker
         class="place-items-center rounded-full text-black
-      {p === focusPin && !sheetClosing
+      {p?.sn === focusPin?.sn && !sheetClosing
           ? ''
           : 'h-[0.75rem] w-[0.75rem] bg-black'}"
         lngLat={p.location}
         on:click={() => handleMarkerClick(p)}
       >
-        {#if p === focusPin && !sheetClosing}
-          {console.log(true)}
-          <img src="/water-machine.png" alt="飲水機圖" />
+        {#if p?.sn === focusPin?.sn && !sheetClosing}
+          <img src="/water-machine.png" alt="飲水機圖" class="z-10" />
         {/if}
       </Marker>
     {/each}
