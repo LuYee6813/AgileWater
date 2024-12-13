@@ -24,7 +24,7 @@
   let sheetOpened = false;
   let sheetClosing = false;
 
-  let ProfileSheetOpened = false;
+  let profileSheetOpened = false;
 
   let focusPin: WaterDispenserResponse | null = null;
   let userPin: LngLatLike = null;
@@ -191,7 +191,7 @@
           admin: user.admin,
         };
         console.log("userData:", userData);
-        ProfileSheetOpened = true; // 打開 ProfileSheet
+        profileSheetOpened = true; // 打開 ProfileSheet
       } else {
         f7.views.main.router.navigate("/login"); // 跳轉登入頁
       }
@@ -301,7 +301,7 @@
     onSheetClosed={handleSheetClosed}
   />
 
-  <ProfileSheet bind:userData bind:ProfileSheetOpened />
+  <ProfileSheet bind:userData bind:profileSheetOpened />
 
   <div
     class="flex flex-row justify-center w-full pb-10 fixed bottom-0 z-5 pointer-events-none"

@@ -31,6 +31,10 @@ export const register = async (
   return response.data;
 };
 
+export const logout = async () => {
+  localStorage.removeItem("token");
+};
+
 export const getCurrentUsers = async (): Promise<{
   username: string;
   nickname: string;
