@@ -1,4 +1,5 @@
 import axios from "axios";
+import { f7 } from "framework7-svelte";
 
 // 使用環境變數中的 API URL
 // const API_URL = import.meta.env.VITE_API_URL;
@@ -30,6 +31,8 @@ api.interceptors.response.use(
   (error) => {
     // 處理錯誤，如重新導向到登入頁
     if (error.response?.status === 401) {
+      f7.sheet.close();
+      f7.views.main.router.navigate("/login/");
       console.error("Unauthorized, redirecting to login...");
     }
     return Promise.reject(error);
