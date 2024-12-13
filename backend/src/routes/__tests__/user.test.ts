@@ -5,7 +5,6 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { startSerever } from '../../app';
 import * as db from '../../config/db';
 import { User } from '../../models/User';
@@ -132,9 +131,7 @@ describe('users', () => {
 
   describe('GET /users/{username} with user unauthorized', () => {
     it('should return 401 error', async () => {
-      const res = await request(app)
-        .get('/users/testuser1')
-        .set('Authorization', 'Bearer ' + 'abc');
+      const res = await request(app).get('/users/testuser1').set('Authorization', 'Bearer ');
       expect(res.statusCode).toBe(401);
     });
   });
@@ -170,7 +167,7 @@ describe('users', () => {
     it('should return 401 error', async () => {
       const res = await request(app)
         .post('/users')
-        .set('Authorization', 'Bearer ' + 'abc')
+        .set('Authorization', 'Bearer ')
         .send({ username: 'admin2', password: 'admin2', nickname: 'Admin2', admin: true });
       expect(res.statusCode).toBe(401);
     });
@@ -186,6 +183,100 @@ describe('users', () => {
         .set('Authorization', 'Bearer ' + token)
         .send({ username: 'admin', password: 'admin', nickname: 'Admin', admin: true });
       expect(res.statusCode).toBe(409);
+    });
+  });
+
+  describe('PUT /users/{username} with user authorized and admin', () => {
+    it('should return 200 and the information of the updated user', async () => {
+      const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .put('/users/admin')
+        .set('Authorization', 'Bearer ' + token)
+        .send({
+          password: 'admin2',
+          nickname: 'Admin3',
+          admin: true
+        });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({
+        username: 'admin',
+        nickname: 'Admin3',
+        admin: true
+      });
+    });
+  });
+  describe('PUT /users/{username} with user authorized but not admin changing his own informations', () => {
+    it('should return 200 and changed informations', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .put('/users/testuser1')
+        .set('Authorization', 'Bearer ' + token)
+        .send({
+          password: 'abcd1234',
+          nickname: 'abcd',
+          admin: false
+        });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({
+        username: 'testuser1',
+        nickname: 'abcd',
+        admin: false
+      });
+    });
+  });
+
+  describe('PUT /users/{username} with user authorized but not admin changing not his own informations', () => {
+    it('should return 403 error', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .put('/users/admin')
+        .set('Authorization', 'Bearer ' + token)
+        .send({
+          password: 'admin2',
+          nickname: 'Admin3',
+          admin: true
+        });
+      expect(res.statusCode).toBe(403);
+    });
+  });
+
+  describe('PUT /users/{username} with user unauthorized', () => {
+    it('should return 401 error', async () => {
+      const res = await request(app).put('/users/testuser1').send({
+        password: 'abcd1234',
+        nickname: 'abcd',
+        admin: false
+      });
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('PUT /user/{username} with user authorized and admin but user not exist', () => {
+    it('should return 404 error', async () => {
+      const token = jwt.sign(
+        {
+          username: 'admin'
+        },
+        process.env.JWT_SECRET || '',
+        {
+          expiresIn: '1h'
+        }
+      );
+      const res = await request(app)
+        .put('/users/testuser3')
+        .set('Authorization', 'Bearer ' + token)
+        .send({
+          password: 'abcd1234',
+          nickname: 'abcd',
+          admin: false
+        });
+      expect(res.statusCode).toBe(404);
     });
   });
 });
