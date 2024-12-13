@@ -14,94 +14,178 @@ let mongoServer: MongoMemoryServer;
 
 let app: Application;
 
-describe('auth', () => {
-    beforeEach(async () => {
-        process.env.JWT_SECRET = 'test';
+describe('users', () => {
+  beforeEach(async () => {
+    process.env.JWT_SECRET = 'test';
 
-        vi.spyOn(db, 'connectDB').mockImplementation(async () => {
-            mongoServer = await MongoMemoryServer.create();
-            const uri = mongoServer.getUri();
-            console.log('uri', uri);
+    vi.spyOn(db, 'connectDB').mockImplementation(async () => {
+      mongoServer = await MongoMemoryServer.create();
+      const uri = mongoServer.getUri();
+      console.log('uri', uri);
 
-            await mongoose.connect(uri);
-        });
-
-        app = await startSerever();
-
-        const hashedPassword1 = await bcrypt.hash('password123', 10);
-        const hashedPassword2 = await bcrypt.hash('password456', 10);
-        await User.create({
-            username: 'testuser1',
-            password: hashedPassword1,
-            nickname: 'Test User1',
-            admin: false
-        });
-        await User.create({
-            username: 'testuser2',
-            password: hashedPassword2,
-            nickname: 'Test User1',
-            admin: false
-        });
+      await mongoose.connect(uri);
     });
 
-    afterEach(async () => {
-        await mongoose.connection.dropDatabase();
-        await mongoose.connection.close();
-        await mongoServer.stop();
+    app = await startSerever();
 
-        vi.restoreAllMocks();
+    const hashedPassword1 = await bcrypt.hash('password123', 10);
+    const hashedPassword2 = await bcrypt.hash('password456', 10);
+    await User.create({
+      username: 'testuser1',
+      password: hashedPassword1,
+      nickname: 'Test User1',
+      admin: false
     });
-
-    describe('GET /users with user authorized', () => {
-        const ExceptResponse = [
-            { username: 'admin', nickname: 'Admin', admin: true },
-            { username: 'testuser1', nickname: 'Test User1', admin: false },
-            { username: 'testuser2', nickname: 'Test User1', admin: false }
-        ];
-
-        it('should return 200 and all user informations', async () => {
-            const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
-                expiresIn: '1h'
-            });
-            const res = await request(app)
-                .get('/users')
-                .set('Authorization', 'Bearer ' + token);
-            expect(res.statusCode).toBe(200);
-            expect(res.header['x-total-count']).toBe('3');
-            expect(res.body).toEqual(ExceptResponse);
-        });
+    await User.create({
+      username: 'testuser2',
+      password: hashedPassword2,
+      nickname: 'Test User1',
+      admin: false
     });
+  });
 
-    describe('GET /users with no user authorized', () => {
-        it('should return 401 error', async () => {
-            const res = await request(app)
-                .get('/users')
-                .set('Authorization', 'Bearer ' + 'abc');
-            expect(res.statusCode).toBe(401);
-        });
+  afterEach(async () => {
+    await mongoose.connection.dropDatabase();
+    await mongoose.connection.close();
+    await mongoServer.stop();
+
+    vi.restoreAllMocks();
+  });
+
+  describe('GET /users with user authorized', () => {
+    const ExceptResponse = [
+      { username: 'admin', nickname: 'Admin', admin: true },
+      { username: 'testuser1', nickname: 'Test User1', admin: false },
+      { username: 'testuser2', nickname: 'Test User1', admin: false }
+    ];
+
+    it('should return 200 and all user informations', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/users')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+      expect(res.header['x-total-count']).toBe('3');
+      expect(res.body).toEqual(ExceptResponse);
     });
+  });
 
-    describe('POST /users/current with user authorized', () => {
-        it('should return 200', async () => {
-            const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
-                expiresIn: '1h'
-            });
-
-            const res = await request(app)
-                .get('/users/current')
-                .set('Authorization', 'Bearer ' + token);
-
-            expect(res.statusCode).toBe(200);
-            expect(res.body).toEqual({ username: 'testuser1', nickname: 'Test User1', admin: false });
-        });
+  describe('GET /users with user unauthorized', () => {
+    it('should return 401 error', async () => {
+      const res = await request(app)
+        .get('/users')
+        .set('Authorization', 'Bearer ' + 'abc');
+      expect(res.statusCode).toBe(401);
     });
+  });
 
-    describe('POST /users/current with no user authorized', () => {
-        it('should return 401 error', async () => {
-            const res = await request(app)
-                .get('/users/current')
-                .set('Authorization', 'Bearer ' + 'abc');
-            expect(res.statusCode).toBe(401);
-        });
+  describe('POST /users/current with user authorized', () => {
+    it('should return 200', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+
+      const res = await request(app)
+        .get('/users/current')
+        .set('Authorization', 'Bearer ' + token);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({ username: 'testuser1', nickname: 'Test User1', admin: false });
     });
+  });
+
+  describe('POST /users/current with user unauthorized', () => {
+    it('should return 401 error', async () => {
+      const res = await request(app)
+        .get('/users/current')
+        .set('Authorization', 'Bearer ' + 'abc');
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('GET /users/{username} with user authorized and searching valid user', () => {
+    it('should return 201 and the information of the user is asked', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/users/testuser1')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({ username: 'testuser1', nickname: 'Test User1', admin: false });
+    });
+  });
+
+  describe('GET /users/{username} with user authorized and searching invalid user', () => {
+    it('should return 201 and the information of the user is asked', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/users/testuser3')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(404);
+    });
+  });
+
+  describe('GET /users/{username} with user unauthorized', () => {
+    it('should return 401 error', async () => {
+      const res = await request(app)
+        .get('/users/testuser1')
+        .set('Authorization', 'Bearer ' + 'abc');
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('POST /users with user authorized and admin', () => {
+    it('should return 201 and the information of the new user', async () => {
+      const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .post('/users')
+        .set('Authorization', 'Bearer ' + token)
+        .send({ username: 'admin2', password: 'admin2', nickname: 'Admin2', admin: true });
+      expect(res.statusCode).toBe(201);
+      expect(res.body).toEqual({ username: 'admin2', nickname: 'Admin2', admin: true });
+    });
+  });
+
+  describe('POST /users with user authorized but not admin', () => {
+    it('should return 401 error', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .post('/users')
+        .set('Authorization', 'Bearer ' + token)
+        .send({ username: 'admin2', password: 'admin2', nickname: 'Admin2', admin: true });
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('POST /users with user unauthorized', () => {
+    it('should return 401 error', async () => {
+      const res = await request(app)
+        .post('/users')
+        .set('Authorization', 'Bearer ' + 'abc')
+        .send({ username: 'admin2', password: 'admin2', nickname: 'Admin2', admin: true });
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('POST /users with user authorized and admin but user already exist', () => {
+    it('should return 201 and the information of the new user', async () => {
+      const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .post('/users')
+        .set('Authorization', 'Bearer ' + token)
+        .send({ username: 'admin', password: 'admin', nickname: 'Admin', admin: true });
+      expect(res.statusCode).toBe(409);
+    });
+  });
 });
