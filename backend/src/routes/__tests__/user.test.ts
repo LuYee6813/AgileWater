@@ -152,7 +152,7 @@ describe('users', () => {
   });
 
   describe('POST /users with user authorized but not admin', () => {
-    it('should return 401 error', async () => {
+    it('should return 403 error', async () => {
       const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
       });
@@ -160,7 +160,7 @@ describe('users', () => {
         .post('/users')
         .set('Authorization', 'Bearer ' + token)
         .send({ username: 'admin2', password: 'admin2', nickname: 'Admin2', admin: true });
-      expect(res.statusCode).toBe(401);
+      expect(res.statusCode).toBe(403);
     });
   });
 

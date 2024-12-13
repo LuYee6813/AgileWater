@@ -88,7 +88,6 @@ const waterDispensersInfo = [
         reviews: rev2
     }
 ];
-
 const waterDispenserExpect = [
     {
         sn: 0,
@@ -248,7 +247,6 @@ describe('users', () => {
                 .set('Authorization', 'Bearer ' + token)
                 .send(comment);
             expect(res.statusCode).toBe(201);
-            console.log(res.body);
             expect(res.body).toEqual(result);
         });
     });
@@ -282,4 +280,61 @@ describe('users', () => {
             expect(res.statusCode).toBe(404);
         });
     });
+
+    describe('PUT /water_dispensers/{sn}/reviews/{reviewSn} with user authorized', () => {
+        const changedComment = {
+            star: 1,
+            content: "噴水池，不是飲水機"
+        }
+        const sn = 0;
+        const result = {
+            ...changedComment,
+            username: 'testuser1',
+            time: expect.any(String),
+            stolen: true,
+            sn: sn
+        }
+        it('should return 200 and the review', async () => {
+            const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+                expiresIn: '1h'
+            });
+            const res = await request(app)
+                .put('/water_dispensers/' + sn + '/reviews/1')
+                .set('Authorization', 'Bearer ' + token)
+                .send(changedComment);
+            expect(res.statusCode).toBe(200);
+            expect(res.body).toEqual(result);
+        });
+    });
+
+    describe('PUT /water_dispensers/{sn}/reviews/{reviewSn} with user unauthorized', () => {
+        const changedComment = {
+            star: 1,
+            content: "噴水池，不是飲水機"
+        }
+        const sn = 0;
+        it('should return 401', async () => {
+            const res = await request(app).put('/water_dispensers/' + sn + '/reviews/1' + sn).send(changedComment);
+            expect(res.statusCode).toBe(401);
+        });
+    });
+
+    describe('PUT /water_dispensers/{sn}/reviews/{reviewSn} with user authorized but water dispenser not exist', () => {
+        const changedComment = {
+            star: 1,
+            content: "噴水池，不是飲水機"
+        }
+        const sn = 64;
+        it('should return 404', async () => {
+            const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+                expiresIn: '1h'
+            });
+            const res = await request(app)
+                .put('/water_dispensers/' + sn + '/reviews/1')
+                .set('Authorization', 'Bearer ' + token)
+                .send(changedComment);
+            expect(res.statusCode).toBe(404);
+        });
+    });
+
 });
