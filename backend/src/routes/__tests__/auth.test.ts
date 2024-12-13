@@ -52,7 +52,7 @@ describe('auth', () => {
   });
 
   describe('POST /auth/login with valid account', () => {
-    it('should return a token', async () => {
+    it('should return 200 and a token', async () => {
       const res = await request(app).post('/auth/login').send({
         username: 'admin',
         password: 'admin'
