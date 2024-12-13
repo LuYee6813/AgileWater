@@ -26,7 +26,7 @@ const rev1 = [
     },
     {
         sn: 2,
-        username: 'testuser1',
+        username: 'testuser2',
         star: 3,
         content: '溫水出不來',
         time: '1989-06-04T12:00:00.000Z',
@@ -337,4 +337,48 @@ describe('users', () => {
         });
     });
 
+    describe('DELETE /water_dispensers/{sn}/reviews/{reviewSn} with user authorized and is admin', () => {
+        it('should return 204', async () => {
+            const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+                expiresIn: '1h'
+            });
+            const res = await request(app)
+                .delete('/water_dispensers/0/reviews/1')
+                .set('Authorization', 'Bearer ' + token);
+            expect(res.statusCode).toBe(204);
+        });
+    });
+
+    describe('DELETE /water_dispensers/{sn}/reviews/{reviewSn} with user authorized but not his own review', () => {
+        it('should return 403', async () => {
+            const token = jwt.sign
+                ({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+                    expiresIn: '1h'
+                });
+            const res = await request(app)
+                .delete('/water_dispensers/0/reviews/2')
+                .set('Authorization', 'Bearer ' + token);
+            expect(res.statusCode).toBe(403);
+        });
+    });
+
+
+    describe('DELETE /water_dispensers/{sn}/reviews/{reviewSn} with user unauthorized', () => {
+        it('should return 401', async () => {
+            const res = await request(app).delete('/water_dispensers/0/reviews/2');
+            expect(res.statusCode).toBe(401);
+        });
+    });
+
+    describe('DELETE /water_dispensers/{sn}/reviews/{reviewSn} with user authorized but water dispenser not exist', () => {
+        it('should return 404', async () => {
+            const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+                expiresIn: '1h'
+            });
+            const res = await request(app)
+                .delete('/water_dispensers/64/reviews/1')
+                .set('Authorization', 'Bearer ' + token);
+            expect(res.statusCode).toBe(404);
+        });
+    });
 });
