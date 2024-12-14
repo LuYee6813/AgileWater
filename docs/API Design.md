@@ -156,10 +156,6 @@ Get user by username.
 
 Invalid session.
 
-##### 403 - Forbidden
-
-Session is valid, but the user has insufficient privileges.
-
 ### POST `/`
 
 Create a new user.
@@ -197,6 +193,10 @@ Return a new user.
 ##### 401 - Unauthorized
 
 Invalid session.
+
+##### 403 - Forbidden
+
+Only admin user can create a new user.
 
 ##### 409 - Conflict
 
@@ -618,7 +618,7 @@ Invalid session.
 
 ##### 403 - Forbidden
 
-Session is valid, but the user has insufficient privileges.
+General user can't modify other's review.
 
 ##### 404 - Not Found
 
@@ -648,7 +648,7 @@ Invalid session.
 
 ##### 403 - Forbidden
 
-Session is valid, but the user has insufficient privileges.
+General user can't delete other's review.
 
 ##### 404 - Not Found
 
