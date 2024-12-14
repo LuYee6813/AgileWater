@@ -137,7 +137,7 @@ describe('users', () => {
     });
   });
 
-  describe('POST /users with user authorized and admin', () => {
+  describe('POST /users with user authorized and is administered', () => {
     it('should return 201 and the information of the new user', async () => {
       const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
@@ -151,7 +151,7 @@ describe('users', () => {
     });
   });
 
-  describe('POST /users with user authorized but not admin', () => {
+  describe('POST /users with user authorized but not administered', () => {
     it('should return 403 error', async () => {
       const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
@@ -174,7 +174,7 @@ describe('users', () => {
     });
   });
 
-  describe('POST /users with user authorized and admin but user already exist', () => {
+  describe('POST /users with user authorized and is administered but user already exist', () => {
     it('should return 201 and the information of the new user', async () => {
       const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
@@ -187,7 +187,7 @@ describe('users', () => {
     });
   });
 
-  describe('PUT /users/{username} with user authorized and admin', () => {
+  describe('PUT /users/{username} with user authorized and is administered', () => {
     it('should return 200 and the information of the updated user', async () => {
       const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
@@ -258,7 +258,7 @@ describe('users', () => {
     });
   });
 
-  describe('PUT /user/{username} with user authorized and admin but user not exist', () => {
+  describe('PUT /user/{username} with user authorized and is administered but user not exist', () => {
     it('should return 404 error', async () => {
       const token = jwt.sign(
         {
@@ -281,7 +281,7 @@ describe('users', () => {
     });
   });
 
-  describe('DELETE /users/{username} with user authorized and admin', () => {
+  describe('DELETE /users/{username} with user authorized and is administered', () => {
     it('should return 204', async () => {
       const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
@@ -324,7 +324,7 @@ describe('users', () => {
     });
   });
 
-  describe('DELETE /users/{username} with user authorized and admin but user not exist', () => {
+  describe('DELETE /users/{username} with user authorized and is administered but user not exist', () => {
     it('should return 404 error', async () => {
       const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
         expiresIn: '1h'
