@@ -109,6 +109,13 @@ describe('auth', () => {
     });
   });
 
+  describe('GET /this_is_not_a_valid_path', () => {
+    it('should return 404 error', async () => {
+      const res = await request(app).get('/this_is_not_a_valid_path');
+      expect(res.statusCode).toBe(404);
+    });
+  });
+
   /*
   describe('POST /register with no payload', () => {
     it('should return 400 error', async () => {
