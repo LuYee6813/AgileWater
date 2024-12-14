@@ -1,6 +1,6 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
-import type { Application, Request, Response } from 'express';
+import type { Application, NextFunction, Request, Response } from 'express';
 import express from 'express';
 
 import { connectDB } from './config/db';
@@ -30,7 +30,7 @@ export async function startSerever(): Promise<Application> {
   app.use('/water_dispensers', waterDispensersRoutes);
 
   // Global error handler
-  app.use((err: Error, _req: Request, res: Response) => {
+  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     console.error(err);
     res.status(500).json({ ...InternalServerError, message: err.message });
   });
