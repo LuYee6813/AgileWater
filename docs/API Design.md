@@ -156,6 +156,10 @@ Get user by username.
 
 Invalid session.
 
+##### 403 - Forbidden
+
+Session is valid, but the user has insufficient privileges.
+
 ### POST `/`
 
 Create a new user.
@@ -612,6 +616,10 @@ Update review for water dispenser.
 
 Invalid session.
 
+##### 403 - Forbidden
+
+Session is valid, but the user has insufficient privileges.
+
 ##### 404 - Not Found
 
 Invalid water dispenser sn or review sn.
@@ -637,6 +645,10 @@ Success delete a review.
 ##### 401 - Unauthorized
 
 Invalid session.
+
+##### 403 - Forbidden
+
+Session is valid, but the user has insufficient privileges.
 
 ##### 404 - Not Found
 
@@ -665,6 +677,10 @@ Contains invalid data or is incorrectly formatted.
 ##### 401 - Unauthorized
 
 Invalid session.
+
+##### 403 - Forbidden
+
+Session is valid, but the user has insufficient privileges.
 
 ##### 404 - Not Found
 
