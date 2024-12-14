@@ -314,11 +314,9 @@ describe('users', () => {
     };
     const sn = 0;
     it('should return 403', async () => {
-      const token = jwt.sign
-        ({ username: 'testuser1' }, process
-          .env.JWT_SECRET || '', {
-          expiresIn: '1h'
-        });
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
       const res = await request(app)
         .put('/water_dispensers/' + sn + '/reviews/2')
         .set('Authorization', 'Bearer ' + token)
