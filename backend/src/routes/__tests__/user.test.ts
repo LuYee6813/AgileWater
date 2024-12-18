@@ -187,6 +187,19 @@ describe('users', () => {
     });
   });
 
+  describe('POST /users with user authorized and is administered but missing required fields', () => {
+    it('should return 400 error', async () => {
+      const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .post('/users')
+        .set('Authorization', 'Bearer ' + token)
+        .send({ username: 'admin2', password: 'admin2' });
+      expect(res.statusCode).toBe(400);
+    });
+  });
+
   describe('PUT /users/{username} with user authorized and is administered', () => {
     it('should return 200 and the information of the updated user', async () => {
       const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
@@ -333,6 +346,18 @@ describe('users', () => {
         .delete('/users/testuser3')
         .set('Authorization', 'Bearer ' + token);
       expect(res.statusCode).toBe(404);
+    });
+  });
+
+  describe('DELETE /users/{username} with user authorized and is administered but trying to delete admin account', () => {
+    it('should return 403 error', async () => {
+      const token = jwt.sign({ username: 'admin' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .delete('/users/admin')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(403);
     });
   });
 });
