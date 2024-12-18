@@ -194,6 +194,100 @@ describe('users', () => {
     });
   });
 
+  describe('GET /water_dispensers?name={} with user authorized', () => {
+    it('should return 200 and the water dispenser information', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/water_dispensers?name=abcd')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual([waterDispenserExpect[0]]);
+    });
+  });
+
+  describe('GET /water_dispensers?iced={} with user authorized', () => {
+    it('should return 200 and the water dispenser information', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/water_dispensers?iced=true')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual([waterDispenserExpect[0]]);
+    });
+  });
+
+  describe('GET /water_dispensers?cold={} with user authorized', () => {
+    it('should return 200 and the water dispenser information', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/water_dispensers?cold=true')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+
+      const sortBySn = (a: { sn: number }, b: { sn: number }): number => a.sn - b.sn;
+      const sortRes = res.body.sort(sortBySn);
+      const sortExpect = waterDispenserExpect.sort(sortBySn);
+
+      expect(sortRes).toEqual(sortExpect);
+    });
+  });
+
+  describe('GET /water_dispensers?warm={} with user authorized', () => {
+    it('should return 200 and the water dispenser information', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/water_dispensers?warm=true')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual([waterDispenserExpect[0]]);
+    });
+  });
+
+  describe('GET /water_dispensers?hot={} with user authorized', () => {
+    it('should return 200 and the water dispenser information', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/water_dispensers?hot=true')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+
+      const sortBySn = (a: { sn: number }, b: { sn: number }): number => a.sn - b.sn;
+      const sortRes = res.body.sort(sortBySn);
+      const sortExpect = waterDispenserExpect.sort(sortBySn);
+
+      expect(sortRes).toEqual(sortExpect);
+    });
+  });
+
+  describe('GET /water_dispensers?lat={}&lng={}&radius={} with user authorized', () => {
+    const expectresult = [
+      {
+        ...waterDispenserExpect[1],
+        distance: 0
+      }
+    ];
+    it('should return 200 and the water dispenser information', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/water_dispensers?lat=25.033976&lng=121.565418&radius=2000')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual(expectresult);
+    });
+  });
+
   describe('GET /water_dispensers/{sn} with user authorized', () => {
     it('should return 200 and the water dispenser information', async () => {
       const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
@@ -225,6 +319,24 @@ describe('users', () => {
       expect(res.statusCode).toBe(404);
     });
   });
+
+  describe('GET /water_dispensers/{sn}/lat={}&lng={} with user authorized', () => {
+    const expectresult = {
+      ...waterDispenserExpect[0],
+      distance: 0
+    };
+    it('should return 200 and the water dispenser information', async () => {
+      const token = jwt.sign({ username: 'testuser1' }, process.env.JWT_SECRET || '', {
+        expiresIn: '1h'
+      });
+      const res = await request(app)
+        .get('/water_dispensers/0?lat=24.986225&lng=121.513152')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual(expectresult);
+    });
+  });
+
   describe('POST /water_dispensers/{sn}/reviews with user authorized', () => {
     const comment = {
       star: 5,
