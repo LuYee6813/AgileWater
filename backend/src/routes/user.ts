@@ -143,6 +143,7 @@ router.delete('/:username', authMiddleware, async (req: AuthenticatedRequest, re
 
   if (username === 'admin') {
     res.status(403).json({ ...ForbiddenError, message: 'Cannot delete admin account' });
+    return;
   }
 
   try {
